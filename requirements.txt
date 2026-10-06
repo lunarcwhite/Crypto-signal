@@ -1,0 +1,4 @@
+# Crypto Trend-Pullback Signal Engine — Fase 1 scaffold
+python-dotenv>=1.0
+websockets>=12.0
+requests>=2.31
