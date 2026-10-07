@@ -92,9 +92,9 @@ def run_symbol(symbol: str, months: int, rest_base: str) -> dict:
         t = i15["t"][i]
         if t < start_ms:
             continue  # buffer warmup, tidak dievaluasi
-        # petakan 1H/4H terakhir yang sudah close (open_time <= t)
-        j1 = bisect.bisect_right(i1h["t"], t) - 1
-        j4 = bisect.bisect_right(i4h["t"], t) - 1
+        # petakan 1H/4H terakhir yang sudah close saat candle 15M ini tutup (t+15min)
+        j1 = bisect.bisect_right(i1h["t"], t - 2_700_000) - 1   # 1H terakhir yg SUDAH close
+        j4 = bisect.bisect_right(i4h["t"], t - 13_500_000) - 1  # 4H terakhir yg SUDAH close
         if j1 < 1 or j4 < 0:
             continue
         c4, e200, ax = i4h["c"][j4], e200_4[j4], adx4[j4]

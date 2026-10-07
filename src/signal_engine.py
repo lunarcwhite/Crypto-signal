@@ -69,6 +69,11 @@ class SignalEngine:
     def _state(self, symbol: str) -> SymbolState:
         return self._st.setdefault(symbol.upper(), SymbolState())
 
+    def notify_close(self, symbol: str, direction: str) -> None:
+        st = self._st.get(symbol.upper())
+        if st:
+            st.last_sig_idx.pop(direction.upper(), None)
+
     def update_regime_4h(self, symbol: str, close_4h: float, ema200_4h: float | None, adx_4h: float | None) -> str:
         """Return 'BULLISH' | 'BEARISH' | 'CHOPPY' | 'WARMING_UP'. Kelola hysteresis."""
         st = self._state(symbol)

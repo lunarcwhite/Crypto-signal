@@ -117,6 +117,7 @@ async def run_forever(
     symbols: list[str],
     on_candle,
     warmup: int = 250,
+    buf: CandleBuffer | None = None,
 ) -> None:
     """Loop koneksi persisten. `on_candle(candle)` dipanggil tiap closed candle."""
     try:
@@ -125,11 +126,13 @@ async def run_forever(
         raise RuntimeError("pip install -r requirements.txt (websockets)") from e
 
     # Warmup awal via REST agar EMA200/ADX langsung valid
-    buf = CandleBuffer()
+    if buf is None:
+        buf = CandleBuffer()
     for s in symbols:
         for iv in INTERVALS:
             try:
-                for c in fetch_klines_rest(rest_base, s, iv, limit=max(warmup, 250)):
+                candles = fetch_klines_rest(rest_base, s, iv, limit=max(warmup, 250))
+                for c in candles[:-1]:  # drop baris terakhir: candle yg masih terbentuk
                     buf.push(c)
             except Exception:
                 log.exception("warmup gagal %s %s", s, iv)

@@ -22,7 +22,8 @@ log = logging.getLogger(__name__)
 DEFAULT_URL = "https://financialmodelingprep.com/stable/economic-calendar"
 # PRD Modul 4: daftar high-impact AS
 KEYWORDS = ("FOMC", "FED", "CPI", "PPI", "NFP", "NONFARM", "PAYROLL",
-            "GDP", "UNEMPLOYMENT", "PCE", "RETAIL SALES", "ISM")
+            "GDP", "UNEMPLOYMENT", "PCE", "RETAIL SALES", "ISM",
+            "ADP", "TRADE BALANCE")   # <-- baru
 
 
 def _get(d: dict, *keys: str):

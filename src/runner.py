@@ -100,6 +100,7 @@ async def main_async(dry_run: bool, db_path: str, health_port: int = 0) -> None:
                 outcome, px = hit
                 close_signal(conn, sid, outcome, px)
                 brk.note_close(symbol, int(time.time() * 1000), outcome)
+                eng.notify_close(symbol, t["dir"])
                 if outcome == "SL_HIT":
                     # cek apakah memicu lock (breaker sudah update internal)
                     if brk.symbol_locked(symbol, int(time.time() * 1000)):
@@ -115,7 +116,6 @@ async def main_async(dry_run: bool, db_path: str, health_port: int = 0) -> None:
 
     async def on_candle(c):
         t_compute_start = time.perf_counter()
-        buf.push(c)
         state["last_candle_at"][c.symbol] = time.time()
         if c.interval != "15m":
             return
@@ -183,7 +183,7 @@ async def main_async(dry_run: bool, db_path: str, health_port: int = 0) -> None:
                                   f"compute_ms={compute_ms:.0f} delivery_ms={delivery_ms:.0f}")
         log.info("sinyal #%d %s %s entry=%s", sid, sym, sig.direction, lv.entry)
 
-    await run_forever(cfg.BINANCE_WS_BASE, cfg.BINANCE_REST_BASE, cfg.SYMBOLS, on_candle)
+    await run_forever(cfg.BINANCE_WS_BASE, cfg.BINANCE_REST_BASE, cfg.SYMBOLS, on_candle, buf=buf)
 
 
 def main() -> None:

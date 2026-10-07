@@ -53,7 +53,7 @@ def load_events(path: str = "econ_calendar.json") -> list[dict]:
         impact = str(e.get("impact", "high")).lower()
         if t and impact in ("high", "medium"):
             if impact == "high" or str(e.get("title", "")).upper() in (
-                "FOMC", "CPI", "NFP", "PPI", "FED", "GDP"):
+                "FOMC", "CPI", "NFP", "PPI", "FED", "GDP", "ADP"):
                 out.append({"t": t, "title": str(e.get("title", "?"))})
     return out
 
