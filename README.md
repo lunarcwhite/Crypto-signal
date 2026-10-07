@@ -36,6 +36,30 @@ python -m src.dispatcher --test "halo"         # tes kirim Telegram
 
 Health: `http://127.0.0.1:8080/health` (port terpakai = ada instance lain → runner exit 2).
 
+## Perintah Telegram (saat runner --live jalan)
+
+Tidak perlu hafal sintaks: tanpa `/` boleh, huruf besar/kecil bebas,
+typo kecil dikoreksi otomatis, dan setiap balasan ada tombol tap.
+
+| Ketikan (bebas) | Artinya |
+|---|---|
+| `/start`, `halo` | Sapaan + panduan |
+| `/help`, `bantuan` | Daftar lengkap + contoh |
+| `/status`, `status` | Status bot & posisi open |
+| `/sinyal`, `sinyal btc`, `btc` | Sinyal terakhir (opsional simbol + jumlah, cth: `/sinyal eth 5`) |
+| `/perf`, `perf 30`, `/perf btc 7` | Win-rate & expectancy paper N hari |
+| `/locks`, `kunci` | Simbol terkunci + freeze makro |
+| `/kalender` | 5 event ekonomi terdekat |
+
+```powershell
+python -m src.telegram_bot --setup-commands  # daftarkan menu "/" autocomplete ke Telegram (sekali)
+python -m src.telegram_bot --poll --db signals.db  # uji perintah standalone tanpa signal loop
+```
+
+Hanya `TELEGRAM_CHAT_IDS` (whitelist) yang dilayani; chat lain mendapat
+penolakan sopan. Bila whitelist kosong, semua diizinkan sementara agar
+owner bisa membaca chat ID-nya dari pesan masuk.
+
 ## Status validasi (12 bln, fee 0.05%+slippage 0.1%)
 
 | Simbol | Sinyal | WR_TP1 | Exp net | KPI |

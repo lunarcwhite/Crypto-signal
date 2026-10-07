@@ -183,7 +183,34 @@ async def main_async(dry_run: bool, db_path: str, health_port: int = 0) -> None:
                                   f"compute_ms={compute_ms:.0f} delivery_ms={delivery_ms:.0f}")
         log.info("sinyal #%d %s %s entry=%s", sid, sym, sig.direction, lv.entry)
 
-    await run_forever(cfg.BINANCE_WS_BASE, cfg.BINANCE_REST_BASE, cfg.SYMBOLS, on_candle, buf=buf)
+    bot_task = asyncio.create_task(_command_bot_task(state, open_trades, brk, db_path))
+    try:
+        await run_forever(cfg.BINANCE_WS_BASE, cfg.BINANCE_REST_BASE, cfg.SYMBOLS, on_candle, buf=buf)
+    finally:
+        bot_task.cancel()
+
+
+async def _command_bot_task(state: dict, open_trades: dict, brk,
+                            db_path: str) -> None:
+    """Polling perintah Telegram berdampingan dengan signal loop.
+
+    Hanya aktif bila TELEGRAM_BOT_TOKEN terisi dan BUKAN dry-run.
+    Kegagalan bot perintah tidak boleh mematikan signal loop.
+    """
+    if state.get("dry_run"):
+        return
+    if not cfg.TELEGRAM_BOT_TOKEN:
+        log.info("command bot nonaktif (TELEGRAM_BOT_TOKEN kosong)")
+        return
+    from src.telegram_bot import run_polling
+    ctx = {"db_path": db_path, "symbols": cfg.SYMBOLS, "state": state,
+           "open_trades": open_trades, "breaker": brk}
+    try:
+        await run_polling(cfg.TELEGRAM_BOT_TOKEN, cfg.TELEGRAM_CHAT_IDS, ctx)
+    except asyncio.CancelledError:
+        pass
+    except Exception:
+        log.exception("command bot berhenti (signal loop tetap jalan)")
 
 
 def main() -> None:
